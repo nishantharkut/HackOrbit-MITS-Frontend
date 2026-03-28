@@ -24,76 +24,108 @@ const Footer = () => {
   return (
     <footer
       style={{
-        borderTop: '1px solid hsl(var(--border-faint) / 0.03)',
+        borderTop: '1px solid hsl(var(--border-faint) / 0.14)',
         background: 'hsl(var(--bg-raised))',
       }}
     >
-      <div className="max-w-6xl mx-auto px-6 md:px-10 py-10 md:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr_1fr] gap-8 md:gap-12">
+      <div className="mx-auto max-w-[1440px] px-6 pb-6 pt-10 md:px-10 md:pb-8 md:pt-14">
+        <div className="grid grid-cols-1 gap-10 border-b pb-10 md:grid-cols-[1.15fr_0.85fr] md:gap-8 md:pb-12" style={{ borderColor: 'hsl(var(--border-faint) / 0.12)' }}>
           <div>
-            <span className="font-mono font-medium text-[10px] text-accent tracking-[3px] uppercase block mb-3">
-              $ cat contact.yml
+            <span className="mb-4 block font-mono text-[10px] font-medium uppercase tracking-[3px] text-accent">
+              $ subscribe --priority-access
             </span>
-            <h3 className="font-display font-bold text-[28px] text-text leading-none mb-3">HACKORBIT</h3>
-            <p className="font-body text-[14px] text-text-dim leading-[1.75] max-w-[380px]">
-              National-level 48-hour build sprint for student teams shipping real, testable solutions.
+            <h3 className="max-w-[16ch] font-display text-[34px] font-bold uppercase leading-[0.9] tracking-[-0.03em] text-text sm:text-[48px] md:text-[56px]">
+              Stay in the loop.
+            </h3>
+
+            <form className="mt-8 max-w-[460px]" onSubmit={(event) => event.preventDefault()}>
+              <div className="grid grid-cols-[1fr_auto] items-end gap-4 border-b pb-2" style={{ borderColor: 'hsl(var(--border-faint) / 0.35)' }}>
+                <label className="block">
+                  <span className="mb-2 block font-mono text-[10px] uppercase tracking-[2px] text-accent">Email</span>
+                  <input
+                    type="email"
+                    placeholder="you@college.edu"
+                    className="w-full bg-transparent font-mono text-[14px] text-text outline-none placeholder:text-text-ghost/70"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  data-cursor="action"
+                  className="font-mono text-[11px] font-semibold uppercase tracking-[2px] text-accent transition-colors duration-150 hover:text-text"
+                >
+                  OK
+                </button>
+              </div>
+            </form>
+
+            <p className="mt-4 font-mono text-[10px] uppercase tracking-[2px] text-text-ghost">
+              First 150 verified teams get fast-track review.
             </p>
-            <div className="mt-5 font-mono text-[10px] text-text-ghost tracking-[2px] uppercase">
-              2026 · MITS Gwalior · DLG Group
-            </div>
           </div>
 
-          <div>
-            <div className="font-mono text-[10px] text-text-ghost tracking-[2px] uppercase mb-3">Quick Links</div>
-            <div className="space-y-2">
-              {quickLinks.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  data-cursor="action"
-                  className="block font-body text-[14px] text-text-dim hover:text-accent transition-colors duration-150"
-                >
-                  {item.label}
-                </a>
-              ))}
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+            <div>
+              <div className="mb-3 font-mono text-[10px] uppercase tracking-[2px] text-accent">Explore</div>
+              <div className="space-y-1.5">
+                {quickLinks.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    data-cursor="action"
+                    className="block font-body text-[14px] text-text-dim transition-colors duration-150 hover:text-accent"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div>
-            <div className="font-mono text-[10px] text-text-ghost tracking-[2px] uppercase mb-3">Resources + Contact</div>
-            <div className="space-y-2 mb-4">
-              {resources.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  data-cursor="action"
-                  className="block font-body text-[14px] text-text-dim hover:text-accent transition-colors duration-150"
-                >
-                  {item.label}
-                </a>
-              ))}
+            <div>
+              <div className="mb-3 font-mono text-[10px] uppercase tracking-[2px] text-accent">Resources</div>
+              <div className="space-y-1.5">
+                {resources.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    data-cursor="action"
+                    className="block font-body text-[14px] text-text-dim transition-colors duration-150 hover:text-accent"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
             </div>
-            <div className="space-y-2">
-              {contacts.map((entry) => (
-                <a
-                  key={entry.label}
-                  href={entry.href}
-                  data-cursor="action"
-                  className="block"
-                >
-                  <span className="font-mono text-[10px] text-text-ghost tracking-[2px] uppercase mr-2">{entry.label}</span>
-                  <span className="font-body text-[13px] text-text-dim hover:text-accent transition-colors duration-150">{entry.value}</span>
-                </a>
-              ))}
+
+            <div>
+              <div className="mb-3 font-mono text-[10px] uppercase tracking-[2px] text-accent">Contact</div>
+              <div className="space-y-2">
+                {contacts.map((entry) => (
+                  <a
+                    key={entry.label}
+                    href={entry.href}
+                    data-cursor="action"
+                    className="block"
+                  >
+                    <span className="mr-2 font-mono text-[10px] uppercase tracking-[2px] text-accent">{entry.label}</span>
+                    <span className="font-body text-[13px] text-text-dim transition-colors duration-150 hover:text-accent">{entry.value}</span>
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        <div
-          className="mt-8 pt-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-3"
-          style={{ borderTop: '1px solid hsl(var(--border-faint) / 0.03)' }}
-        >
-          <span className="font-mono text-[10px] text-text-ghost tracking-[2px] uppercase">
+        <div className="overflow-hidden pb-1 pt-7 md:pt-10">
+          <div
+            aria-hidden
+            className="select-none font-display text-[min(19vw,260px)] font-bold uppercase leading-[0.78] tracking-[-0.055em] text-text"
+          >
+            HACKORBIT
+          </div>
+        </div>
+
+        <div className="mt-3 flex flex-col items-start justify-between gap-3 border-t pt-4 md:mt-4 md:flex-row md:items-center" style={{ borderColor: 'hsl(var(--border-faint) / 0.12)' }}>
+          <span className="font-mono text-[10px] uppercase tracking-[2px] text-text-ghost">
             Build Status: Passing
           </span>
           <span className="font-body text-[12px] text-text-ghost">
