@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { animate, stagger } from 'animejs';
+import ScrollFloat from './ScrollFloat';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -66,9 +67,12 @@ const TracksSection = () => {
         <span className="font-mono font-medium text-[10px] text-accent tracking-[3px] uppercase block mb-3">
           $ ls tracks/
         </span>
-        <h2 className="font-display font-bold text-[26px] md:text-[40px] text-text leading-none mb-12">
+        <ScrollFloat
+          containerClassName="font-display font-bold text-[26px] md:text-[40px] text-text leading-none mb-12"
+          scrollStart="top 84%"
+        >
           Choose your mission.
-        </h2>
+        </ScrollFloat>
 
         <div>
           {tracks.map((track, i) => (
@@ -76,7 +80,11 @@ const TracksSection = () => {
               key={i}
               data-cursor="action"
               className="relative flex items-start py-[22px] overflow-hidden group transition-all duration-200 hover:bg-accent-dim hover:rounded-[6px] hover:pl-3"
-              style={{ borderBottom: '1px solid hsl(var(--border-faint) / 0.03)' }}
+              style={{
+                borderBottom: '1px solid hsl(var(--border) / 0.14)',
+                boxShadow: 'inset 0 -1px 0 hsl(var(--border-neutral) / 0.08)',
+                borderTop: i === 0 ? '1px solid hsl(var(--border) / 0.14)' : undefined,
+              }}
             >
               {/* Scan line */}
               <div

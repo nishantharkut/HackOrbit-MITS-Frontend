@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import ScrollFloat from './ScrollFloat';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -212,9 +213,12 @@ const FAQSection = () => {
         <span className="font-mono font-medium text-[10px] text-accent tracking-[3px] uppercase block mb-3">
           $ man hackorbit
         </span>
-        <h2 className="font-display font-bold text-[26px] md:text-[40px] text-text leading-none mb-12">
+        <ScrollFloat
+          containerClassName="font-display font-bold text-[26px] md:text-[40px] text-text leading-none mb-12"
+          scrollStart="top 84%"
+        >
           Common queries.
-        </h2>
+        </ScrollFloat>
 
         {/* Terminal window */}
         <div

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="DLG Group">
+  <rect x="10" y="14" width="44" height="28" rx="5" fill="#0f1724" stroke="#dbe2f3" stroke-width="2" opacity="0.95" />
+  <path d="M20 49h24M26 42h12" stroke="#dbe2f3" stroke-width="2" stroke-linecap="round" opacity="0.9" />
+  <circle cx="16.5" cy="19.5" r="1.8" fill="#93f51f" />
+  <path d="M18 26h28M18 31h20" stroke="#dbe2f3" stroke-width="2" stroke-linecap="round" opacity="0.8" />
+</svg>

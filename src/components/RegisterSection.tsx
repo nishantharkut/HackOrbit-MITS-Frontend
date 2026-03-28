@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { animate, spring } from 'animejs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import ScrollFloat from './ScrollFloat';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -109,9 +110,12 @@ const RegisterSection = () => {
         <p className="reg-animate font-body font-light text-[17px] text-text-dim opacity-0">
           Your next 48 hours start here.
         </p>
-        <h2 className="reg-animate font-display font-bold text-[30px] md:text-[52px] text-text tracking-[-0.02em] mt-2 leading-none opacity-0">
+        <ScrollFloat
+          containerClassName="reg-animate font-display font-bold text-[30px] md:text-[52px] text-text tracking-[-0.02em] mt-2 leading-none opacity-0"
+          scrollStart="top 88%"
+        >
           Ship something real.
-        </h2>
+        </ScrollFloat>
       </div>
 
       {/* Terminal form */}

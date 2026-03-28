@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { animate, spring } from 'animejs';
+import ScrollFloat from './ScrollFloat';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -127,9 +128,12 @@ const CommunitySection = () => {
         <span className="font-mono font-medium text-[10px] text-accent tracking-[3px] uppercase block mb-3">
           $ ./join-community.sh
         </span>
-        <h2 className="font-display font-bold text-[26px] md:text-[40px] text-text leading-none mb-3">
+        <ScrollFloat
+          containerClassName="font-display font-bold text-[26px] md:text-[40px] text-text leading-none mb-3"
+          scrollStart="top 84%"
+        >
           Join the command channels.
-        </h2>
+        </ScrollFloat>
         <p className="font-body text-[15px] text-text-dim leading-[1.75] max-w-[640px] mb-10">
           Choose where you want updates delivered. Every channel is active during registration and the full 48-hour sprint.
         </p>

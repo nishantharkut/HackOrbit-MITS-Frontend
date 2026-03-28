@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { animate } from 'animejs';
+import ScrollFloat from './ScrollFloat';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -71,35 +72,74 @@ const PrizesSection = () => {
         <span className="font-mono font-medium text-[10px] text-accent tracking-[3px] uppercase block mb-3">
           $ cat prizes.json
         </span>
-        <h2 className="font-display font-bold text-[26px] md:text-[40px] text-text leading-none mb-12">
+        <ScrollFloat
+          containerClassName="font-display font-bold text-[26px] md:text-[40px] text-text leading-none mb-12"
+          scrollStart="top 84%"
+        >
           The stakes.
-        </h2>
+        </ScrollFloat>
 
-        {/* Asymmetric grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1.6fr_1fr_1fr]">
-          {prizes.map((p, i) => (
+        <p className="font-body text-[15px] text-text-dim leading-[1.75] max-w-[620px] mb-10">
+          Prize design is performance design. We reward execution, originality and impact with a payout structure that respects serious builders.
+        </p>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-4">
+          <div
+            data-cursor="number"
+            className="relative overflow-hidden rounded-[12px] p-7 md:p-8"
+            style={{
+              border: '1px solid hsl(var(--accent) / 0.26)',
+              background: 'linear-gradient(145deg, hsl(var(--bg-card)) 0%, hsl(var(--bg-raised)) 55%, hsl(var(--bg-card)) 100%)',
+            }}
+          >
             <div
-              key={i}
-              data-cursor="number"
-              className={`p-7 ${i === 0 ? 'sm:row-span-2' : ''}`}
-              style={{
-                borderRight: '1px solid hsl(var(--border-faint) / 0.03)',
-                borderBottom: '1px solid hsl(var(--border-faint) / 0.03)',
-              }}
+              className="absolute -right-16 -top-16 h-44 w-44 rounded-full pointer-events-none"
+              style={{ background: 'radial-gradient(circle, hsl(var(--accent) / 0.18) 0%, transparent 70%)' }}
+            />
+
+            <span className="font-mono text-[12px] font-semibold uppercase tracking-[0.18em] text-text/90 block">{prizes[0].label}</span>
+            <span
+              ref={el => { valueRefs.current[0] = el; }}
+              className="mt-4 block font-display text-[56px] md:text-[72px] leading-none font-bold text-accent"
             >
-              <span className="font-mono text-[9px] text-text-ghost uppercase tracking-[2px] block mb-3">
-                {p.label}
-              </span>
-              <span
-                ref={el => { valueRefs.current[i] = el; }}
-                className={`font-display font-bold leading-none block ${p.large ? 'text-[52px]' : 'text-[36px]'}`}
-                style={{ color: p.color === 'warning' ? 'hsl(var(--warning))' : 'hsl(var(--accent))' }}
-              >
-                {p.prefix}0{p.suffix}
-              </span>
-              <span className="font-body text-[12px] text-text-ghost mt-2.5 block">{p.sub}</span>
-            </div>
-          ))}
+              {prizes[0].prefix}0{prizes[0].suffix}
+            </span>
+            <p className="mt-4 max-w-[48ch] font-body text-[14px] text-text-dim leading-[1.7]">
+              {prizes[0].sub}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {prizes.slice(1).map((p, idx) => {
+              const refIndex = idx + 1;
+
+              return (
+                <div
+                  key={p.label}
+                  data-cursor="number"
+                  className="rounded-[10px] p-5"
+                  style={{
+                    border: `1px solid ${p.color === 'warning' ? 'hsl(var(--warning) / 0.22)' : 'hsl(var(--border-neutral) / 0.12)'}`,
+                    background: 'hsl(var(--bg-card))',
+                  }}
+                >
+                  <span className="font-mono text-[11px] font-semibold text-text/85 uppercase tracking-[0.14em] block mb-3">
+                    {p.label}
+                  </span>
+                  <span
+                    ref={el => { valueRefs.current[refIndex] = el; }}
+                    className="block font-display text-[42px] leading-none font-bold"
+                    style={{ color: p.color === 'warning' ? 'hsl(var(--warning))' : 'hsl(var(--accent))' }}
+                  >
+                    {p.prefix}0{p.suffix}
+                  </span>
+                  <span className="mt-2 block font-body text-[12px] text-text-dim leading-[1.55]">
+                    {p.sub}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

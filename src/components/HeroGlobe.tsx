@@ -66,8 +66,9 @@ const HeroGlobe = () => {
     if (size === 0) return;
 
     if (globeRef.current) {
-      globeRef.current.destroy();
       cancelAnimationFrame(rafRef.current);
+      globeRef.current.destroy();
+      globeRef.current = null;
     }
 
     const pixelRatio = window.devicePixelRatio || 1;
@@ -106,7 +107,7 @@ const HeroGlobe = () => {
       if (!pointerInteracting.current) {
         phiRef.current += 0.003;
       }
-      globe.update({
+      globeRef.current?.update({
         phi: phiRef.current + pointerInteractionMovement.current,
         width: size * pixelRatio,
         height: size * pixelRatio,

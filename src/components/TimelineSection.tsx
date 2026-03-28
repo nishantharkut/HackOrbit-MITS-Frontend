@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './TimelineSection.css';
+import ScrollFloat from './ScrollFloat';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -87,16 +88,14 @@ const TimelineSection = () => {
 
     const setupPath = () => {
       const totalWidth = milestones.length * window.innerWidth;
-      const y = 500;
-      path.setAttribute('d', `M 120 ${y} L ${Math.max(120, totalWidth - 120)} ${y}`);
-
-      const length = path.getTotalLength();
-      path.style.strokeDasharray = `${length}`;
-      path.style.strokeDashoffset = `${length}`;
-      return length;
+      const startX = 120;
+      const endX = Math.max(startX, totalWidth - 120);
+      const y = 5;
+      path.setAttribute('d', `M ${startX} ${y} L ${endX} ${y}`);
+      gsap.set(path, { scaleX: 0, transformOrigin: 'left center' });
     };
 
-    let lineLength = setupPath();
+    setupPath();
 
     const ctx = gsap.context(() => {
       const tween = gsap.to(track, {
@@ -111,14 +110,20 @@ const TimelineSection = () => {
           end: () => `+=${Math.max(1, track.scrollWidth - window.innerWidth)}`,
           snap: {
             snapTo: 1 / (milestones.length - 1),
-            duration: 0.35,
+            duration: 0.42,
             ease: 'power1.inOut',
           },
           onRefresh: () => {
-            lineLength = setupPath();
+            setupPath();
           },
           onUpdate: (self) => {
-            path.style.strokeDashoffset = `${lineLength * (1 - self.progress)}`;
+            const progress = self.progress;
+            const sweepProgress = progress <= 0.5 ? progress * 2 : (1 - progress) * 2;
+            gsap.set(path, {
+              scaleX: Math.max(0, sweepProgress),
+              transformOrigin: 'left center',
+            });
+
             const idx = Math.round(self.progress * (milestones.length - 1));
             setCurrent(idx);
           },
@@ -223,9 +228,12 @@ const TimelineSection = () => {
           <span className="font-mono font-medium text-[10px] text-accent tracking-[3px] uppercase block mb-3">
             $ git log --oneline
           </span>
-          <h2 className="timeline-mobile-title font-display font-bold text-text leading-none">
+          <ScrollFloat
+            containerClassName="timeline-mobile-title font-display font-bold text-text leading-none"
+            scrollStart="top 88%"
+          >
             From brief to build.
-          </h2>
+          </ScrollFloat>
 
           <div className="timeline-mobile-info relative">
             <div
@@ -281,14 +289,19 @@ const TimelineSection = () => {
         <span className="font-mono font-medium text-[10px] text-accent tracking-[3px] uppercase block mb-3">
           $ git log --oneline
         </span>
-        <h2 className="font-display font-bold text-[40px] text-text leading-none mb-16">From brief to build.</h2>
+        <ScrollFloat
+          containerClassName="font-display font-bold text-[40px] text-text leading-none mb-16"
+          scrollStart="top 84%"
+        >
+          From brief to build.
+        </ScrollFloat>
       </div>
 
-      <div className="relative h-screen overflow-hidden">
+      <div className="relative h-[78vh] min-h-[560px] overflow-hidden">
         <svg
-          className="absolute left-0 top-0 h-full pointer-events-none"
+          className="absolute left-0 top-[66%] h-[10px] -translate-y-1/2 pointer-events-none"
           style={{ width: `${milestones.length * 100}vw` }}
-          viewBox={`0 0 ${milestones.length * window.innerWidth} 1000`}
+          viewBox={`0 0 ${milestones.length * window.innerWidth} 10`}
           preserveAspectRatio="none"
         >
           <path
@@ -296,14 +309,16 @@ const TimelineSection = () => {
             className="timeline-path"
             stroke="hsl(var(--accent))"
             strokeWidth="2"
+            strokeLinecap="round"
+            style={{ transformBox: 'fill-box' }}
             fill="none"
           />
         </svg>
 
         <div ref={trackRef} className="timeline-track flex w-fit h-full items-center">
           {milestones.map((milestone) => (
-            <div key={milestone.hash} className="timeline-panel w-screen h-screen flex items-center relative">
-              <div className="mx-auto w-full max-w-6xl px-6 md:px-10 -mt-28">
+            <div key={milestone.hash} className="timeline-panel w-screen h-full flex items-start relative pt-12 md:pt-14">
+              <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
                 <div
                   className="inline-flex items-center gap-2 rounded-[7px] px-3 py-1 font-mono text-[11px] text-text mb-3"
                   style={{
