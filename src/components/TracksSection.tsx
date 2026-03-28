@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { animate, stagger } from 'animejs';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -27,16 +28,21 @@ const TracksSection = () => {
           const contents = sectionRef.current?.querySelectorAll('.theme-content');
           
           if (scanLines) {
-            gsap.fromTo(scanLines, 
-              { x: '-110%' },
-              { x: '110%', duration: 0.56, stagger: 0.09, ease: 'power2.inOut' }
-            );
+            animate(scanLines, {
+              translateX: ['-110%', '110%'],
+              duration: 560,
+              delay: stagger(90),
+              easing: 'easeInOutQuart',
+            });
           }
           if (contents) {
-            gsap.fromTo(contents,
-              { opacity: 0, y: 10 },
-              { opacity: 1, y: 0, duration: 0.28, stagger: 0.09, delay: 0.2, ease: 'power2.out' }
-            );
+            animate(contents, {
+              opacity: [0, 1],
+              translateY: [10, 0],
+              duration: 280,
+              delay: stagger(90, { start: 200 }),
+              easing: 'easeOutQuart',
+            });
           }
         },
         once: true,

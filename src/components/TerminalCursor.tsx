@@ -47,10 +47,10 @@ const TerminalCursor = () => {
       gsap.to(cursor, { height: 18, width: 10, duration: 0.12 });
     };
     const onNumberEnter = () => {
-      gsap.to(cursor, { backgroundColor: 'hsl(267 78% 72%)', duration: 0.12 });
+      gsap.to(cursor, { backgroundColor: 'hsl(var(--keyword))', duration: 0.12 });
     };
     const onNumberLeave = () => {
-      gsap.to(cursor, { backgroundColor: 'hsl(82 95% 58%)', duration: 0.12 });
+      gsap.to(cursor, { backgroundColor: 'hsl(var(--accent))', duration: 0.12 });
     };
 
     actionEls.forEach(el => {
@@ -91,7 +91,7 @@ const TerminalCursor = () => {
         position: 'fixed',
         width: 10,
         height: 18,
-        background: 'hsl(82 95% 58%)',
+        background: 'hsl(var(--accent))',
         borderRadius: 1,
         pointerEvents: 'none',
         zIndex: 9998,

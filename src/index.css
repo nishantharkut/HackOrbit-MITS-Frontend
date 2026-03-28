@@ -51,13 +51,10 @@
     --radius: 0.5rem;
   }
 
-  * {
-    cursor: crosshair;
-  }
-
   html {
     background: hsl(220 22% 6%);
     color-scheme: dark;
+    cursor: crosshair;
   }
 
   body {

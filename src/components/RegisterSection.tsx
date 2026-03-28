@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { animate, createSpring } from 'animejs';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const RegisterSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const submitRef = useRef<HTMLButtonElement>(null);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -30,6 +32,37 @@ const RegisterSection = () => {
       setSubmitted(true);
     }, 1200);
   };
+
+  useEffect(() => {
+    const submitBtn = submitRef.current;
+    if (!submitBtn) return;
+
+    const spring = createSpring({ stiffness: 280, damping: 16 });
+
+    const handleEnter = () => {
+      animate(submitBtn, {
+        translateY: -3,
+        scale: 1.02,
+        duration: spring,
+      });
+    };
+
+    const handleLeave = () => {
+      animate(submitBtn, {
+        translateY: 0,
+        scale: 1,
+        duration: spring,
+      });
+    };
+
+    submitBtn.addEventListener('mouseenter', handleEnter);
+    submitBtn.addEventListener('mouseleave', handleLeave);
+
+    return () => {
+      submitBtn.removeEventListener('mouseenter', handleEnter);
+      submitBtn.removeEventListener('mouseleave', handleLeave);
+    };
+  }, []);
 
   const fields = [
     { name: 'team_name', label: 'team_name:' },
@@ -119,15 +152,21 @@ const RegisterSection = () => {
 
           <div className="pt-4">
             <button
+                ref={submitRef}
               type="submit"
               data-cursor="action"
               disabled={submitted}
-              className="w-full font-mono font-semibold text-[13px] bg-accent text-bg h-[46px] rounded-[6px] transition-transform hover:-translate-y-[2px] hover:scale-[1.01] active:scale-[0.97] disabled:opacity-70"
+                className="w-full font-mono font-semibold text-[13px] bg-accent text-bg h-[46px] rounded-[6px] active:scale-[0.97] disabled:opacity-70"
             >
               {submitted
                 ? '[SUCCESS] registration confirmed'
                 : submitting
-                  ? '> running...'
+                    ? (
+                      <>
+                        {'> running... '}
+                        <span className="inline-block" style={{ animation: 'cursor-blink 0.55s steps(1) infinite' }}>█</span>
+                      </>
+                    )
                   : '> ./register.sh --confirm'}
             </button>
           </div>
@@ -137,6 +176,13 @@ const RegisterSection = () => {
       <p className="reg-animate font-body text-[12px] text-text-ghost text-center mt-3.5 opacity-0">
         No credit card · No fees · Results in 48 hours
       </p>
+
+      <style>{`
+        @keyframes cursor-blink {
+          0%, 49% { opacity: 1; }
+          50%, 100% { opacity: 0; }
+        }
+      `}</style>
     </section>
   );
 };

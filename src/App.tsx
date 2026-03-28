@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
@@ -19,26 +19,72 @@ gsap.registerPlugin(ScrollTrigger);
 
 const App = () => {
   const [loading, setLoading] = useState(true);
+  const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.15,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     });
+    lenisRef.current = lenis;
 
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    const onLenisScroll = () => {
+      ScrollTrigger.update();
+    };
+    lenis.on('scroll', onLenisScroll);
+
+    const onTick = (time: number) => lenis.raf(time * 1000);
+
+    gsap.ticker.add(onTick);
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      gsap.ticker.remove(onTick);
+      lenis.off('scroll', onLenisScroll);
       lenis.destroy();
+      lenisRef.current = null;
     };
   }, []);
 
+  useEffect(() => {
+    const body = document.body;
+    const html = document.documentElement;
+
+    if (loading) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      lenisRef.current?.stop();
+      body.style.overflow = 'hidden';
+      html.style.overflow = 'hidden';
+      return;
+    }
+
+    body.style.overflow = '';
+    html.style.overflow = '';
+    lenisRef.current?.start();
+
+    return () => {
+      body.style.overflow = '';
+      html.style.overflow = '';
+    };
+  }, [loading]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    const raf = window.requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
+
+    return () => {
+      window.cancelAnimationFrame(raf);
+    };
+  }, [loading]);
+
   return (
-    <div className="dark">
+    <div>
       {loading && <Preloader onComplete={() => setLoading(false)} />}
       
-      <div style={{ opacity: loading ? 0 : 1, transition: 'opacity 0.4s ease' }}>
+      <div style={{ opacity: loading ? 0 : 1, transition: 'opacity 0.4s ease', pointerEvents: loading ? 'none' : 'auto' }}>
         <Navbar />
         <HeroSection show={!loading} />
         <MarqueeStrip />

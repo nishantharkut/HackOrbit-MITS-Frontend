@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText } from 'gsap/SplitText';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, SplitText);
 
 const manContent = `NAME
        hackorbit -- 48-hour national hackathon by MITS Gwalior
@@ -54,15 +55,24 @@ const FAQSection = () => {
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const splitInstances: SplitText[] = [];
+
     const ctx = gsap.context(() => {
       if (!contentRef.current) return;
-      const lines = contentRef.current.querySelectorAll('.man-line');
-      gsap.fromTo(lines, { opacity: 0, y: 4 }, {
+
+      const split = new SplitText(contentRef.current, { type: 'lines' });
+      splitInstances.push(split);
+
+      gsap.fromTo(split.lines, { opacity: 0, y: 4 }, {
         opacity: 1, y: 0, stagger: 0.04, duration: 0.3,
         scrollTrigger: { trigger: contentRef.current, start: 'top 78%' },
       });
     });
-    return () => ctx.revert();
+
+    return () => {
+      splitInstances.forEach((split) => split.revert());
+      ctx.revert();
+    };
   }, []);
 
   const renderContent = () => {
@@ -71,7 +81,7 @@ const FAQSection = () => {
       const isHeader = trimmed === line && line.length > 0 && line === line.toUpperCase();
 
       return (
-        <div key={i} className="man-line opacity-0">
+          <div key={i} className="man-line">
           {isHeader ? (
             <span className="font-mono font-semibold text-[11px] sm:text-[13px] text-accent">{line}</span>
           ) : (

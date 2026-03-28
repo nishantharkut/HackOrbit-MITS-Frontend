@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { animate } from 'animejs';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Navbar = () => {
   const navRef = useRef<HTMLElement>(null);
+  const previousBuildRef = useRef(247);
+  const digitRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const [buildNum, setBuildNum] = useState(247);
   const [status, setStatus] = useState<'PASSING' | 'RUNNING'>('PASSING');
-  const digitRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -61,7 +63,59 @@ const Navbar = () => {
     return () => clearTimeout(timeout);
   }, []);
 
-  const buildStr = String(buildNum).padStart(6, '0');
+  useEffect(() => {
+    const prevDigits = String(previousBuildRef.current).padStart(6, '0').split('');
+    const nextDigits = String(buildNum).padStart(6, '0').split('');
+
+    nextDigits.forEach((digit, index) => {
+      if (digit === prevDigits[index]) return;
+
+      const slot = digitRefs.current[index];
+      if (!slot) return;
+
+      const outgoing = document.createElement('span');
+      outgoing.textContent = prevDigits[index];
+      outgoing.style.position = 'absolute';
+      outgoing.style.left = '0';
+      outgoing.style.top = '0';
+      outgoing.style.width = '100%';
+      outgoing.style.height = '100%';
+      outgoing.style.transform = 'translateY(0%)';
+
+      const incoming = document.createElement('span');
+      incoming.textContent = digit;
+      incoming.style.position = 'absolute';
+      incoming.style.left = '0';
+      incoming.style.top = '0';
+      incoming.style.width = '100%';
+      incoming.style.height = '100%';
+      incoming.style.transform = 'translateY(100%)';
+
+      slot.innerHTML = '';
+      slot.appendChild(outgoing);
+      slot.appendChild(incoming);
+
+      animate(outgoing, {
+        translateY: ['0%', '-100%'],
+        duration: 160,
+        easing: 'easeInOutQuart',
+      });
+
+      animate(incoming, {
+        translateY: ['100%', '0%'],
+        duration: 160,
+        easing: 'easeInOutQuart',
+        complete: () => {
+          slot.innerHTML = '';
+          slot.textContent = digit;
+        },
+      });
+    });
+
+    previousBuildRef.current = buildNum;
+  }, [buildNum]);
+
+  const buildStr = String(buildNum).padStart(6, '0').split('');
 
   return (
     <nav
@@ -81,8 +135,19 @@ const Navbar = () => {
       {/* CI Status - hidden on mobile */}
       <div className="hidden md:flex items-center gap-3 font-mono text-[10px]">
         <span className="text-text-ghost">BUILD #</span>
-        <span className="text-text-dim tracking-wide" ref={el => { digitRefs.current[0] = el; }}>
-          {buildStr}
+        <span className="text-text-dim tracking-wide flex items-center" aria-label={`build-${buildNum}`}>
+          {buildStr.map((digit, index) => (
+            <span
+              key={`${index}-${digit}`}
+              ref={(el) => {
+                digitRefs.current[index] = el;
+              }}
+              className="relative inline-block overflow-hidden text-center"
+              style={{ width: '0.7em', height: '1.2em', lineHeight: '1.2em' }}
+            >
+              {digit}
+            </span>
+          ))}
         </span>
         <span id="ci-dot" className="text-accent">●</span>
         <span

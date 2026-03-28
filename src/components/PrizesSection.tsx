@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { animate } from 'animejs';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,17 +14,18 @@ const prizes = [
 ];
 
 function glitchCounter(el: HTMLElement, target: number, prefix: string, suffix: string) {
+  const obj = { value: 0 };
+
   const interval = setInterval(() => {
     el.textContent = prefix + Math.floor(Math.random() * target).toLocaleString('en-IN') + suffix;
   }, 48);
 
   setTimeout(() => {
     clearInterval(interval);
-    const obj = { value: 0 };
-    gsap.to(obj, {
+    animate(obj, {
       value: target,
-      duration: 0.88,
-      ease: 'power3.out',
+      duration: 880,
+      easing: 'easeOutExpo',
       onUpdate: () => {
         el.textContent = prefix + Math.floor(obj.value).toLocaleString('en-IN') + suffix;
       },
