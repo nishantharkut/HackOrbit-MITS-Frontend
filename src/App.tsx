@@ -11,6 +11,7 @@ import AboutSection from './components/AboutSection';
 import TracksSection from './components/TracksSection';
 import TimelineSection from './components/TimelineSection';
 import PrizesSection from './components/PrizesSection';
+import GallerySection from './components/GallerySection';
 import FAQSection from './components/FAQSection';
 import SponsorsSection from './components/SponsorsSection';
 import CommunitySection from './components/CommunitySection';
@@ -97,6 +98,8 @@ const App = () => {
         <TimelineSection />
         <MarqueeStrip />
         <PrizesSection />
+        <MarqueeStrip />
+        <GallerySection />
         <MarqueeStrip />
         <FAQSection />
         <MarqueeStrip />
