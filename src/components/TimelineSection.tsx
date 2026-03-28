@@ -17,7 +17,7 @@ type Milestone = {
 const milestones: Milestone[] = [
   {
     hash: 'a1b2c3d',
-    date: '2026-03-15',
+    date: '15 March 2026',
     title: 'Registration Opens',
     desc: 'Team onboarding starts. Registrations and track intents are now being accepted.',
     status: 'STATUS: ACCEPTING TEAMS',
@@ -25,7 +25,7 @@ const milestones: Milestone[] = [
   },
   {
     hash: 'e4f5g6h',
-    date: '2026-04-01',
+    date: '1 April 2026',
     title: 'Team Lock-in',
     desc: 'Final day to update member rosters before problem-release phase begins.',
     status: 'STATUS: DEADLINE',
@@ -33,7 +33,7 @@ const milestones: Milestone[] = [
   },
   {
     hash: 'i7j8k9l',
-    date: '2026-04-14',
+    date: '14 April 2026',
     title: 'Problem Statements',
     desc: 'Official statements are released and published to all validated participants.',
     status: 'STATUS: CLASSIFIED UNTIL THEN',
@@ -41,7 +41,7 @@ const milestones: Milestone[] = [
   },
   {
     hash: 'm1n2o3p',
-    date: '2026-04-15',
+    date: '15 April 2026',
     title: 'Hacking Begins',
     desc: 'Build clock starts. Teams enter full sprint mode for 48 consecutive hours.',
     status: 'STATUS: T-MINUS CALCULATING',
@@ -49,7 +49,7 @@ const milestones: Milestone[] = [
   },
   {
     hash: 'q4r5s6t',
-    date: '2026-04-16',
+    date: '16 April 2026',
     title: 'Submissions Close',
     desc: 'Submission window closes and all repositories move to evaluation queue.',
     status: 'STATUS: HARD DEADLINE',
@@ -186,7 +186,34 @@ const TimelineSection = () => {
   const statusColor = (kind: Milestone['statusColor']) => {
     if (kind === 'accent') return 'hsl(var(--accent))';
     if (kind === 'warning') return 'hsl(var(--warning))';
-    return 'hsl(var(--text-ghost))';
+    return 'hsl(var(--text-dim))';
+  };
+
+  const statusTone = (kind: Milestone['statusColor']) => {
+    if (kind === 'accent') {
+      return {
+        color: 'hsl(var(--accent))',
+        border: '1px solid hsl(var(--accent) / 0.5)',
+        background: 'hsl(var(--accent) / 0.14)',
+        boxShadow: '0 0 0 1px hsl(var(--accent) / 0.14) inset',
+      };
+    }
+
+    if (kind === 'warning') {
+      return {
+        color: 'hsl(var(--warning))',
+        border: '1px solid hsl(var(--warning) / 0.5)',
+        background: 'hsl(var(--warning) / 0.14)',
+        boxShadow: '0 0 0 1px hsl(var(--warning) / 0.14) inset',
+      };
+    }
+
+    return {
+      color: 'hsl(var(--text))',
+      border: '1px solid hsl(var(--border) / 0.9)',
+      background: 'hsl(var(--bg-raised))',
+      boxShadow: '0 0 0 1px hsl(var(--border-faint) / 0.5) inset',
+    };
   };
 
   if (!isDesktop) {
@@ -221,10 +248,22 @@ const TimelineSection = () => {
                   }}
                   className="timeline-mobile-item"
                 >
-                  <div className="font-mono text-[11px] text-text-ghost mb-2">[{milestone.hash}]          [{milestone.date}]</div>
+                  <div
+                    className="inline-flex items-center gap-2 rounded-[7px] px-3 py-1 font-mono text-[11px] text-text mb-3"
+                    style={{
+                      border: '1px solid hsl(var(--border) / 0.8)',
+                      background: 'hsl(var(--bg-raised))',
+                    }}
+                  >
+                    <span className="text-text-ghost">[{milestone.hash}]</span>
+                    <span className="text-accent">{milestone.date}</span>
+                  </div>
                   <h3 className="timeline-mobile-item-title font-display font-bold text-text leading-[0.95] tracking-[-0.02em]">{milestone.title}</h3>
                   <p className="timeline-mobile-item-desc font-body text-text-dim leading-[1.75]">{milestone.desc}</p>
-                  <div className="font-mono font-medium text-[10px] tracking-[2px] mt-3" style={{ color: statusColor(milestone.statusColor) }}>
+                  <div
+                    className="mt-4 inline-flex rounded-[7px] px-3 py-1 font-mono font-semibold text-[10px] tracking-[2px]"
+                    style={statusTone(milestone.statusColor)}
+                  >
                     {milestone.status}
                   </div>
                 </div>
@@ -263,14 +302,26 @@ const TimelineSection = () => {
 
         <div ref={trackRef} className="timeline-track flex w-fit h-full items-center">
           {milestones.map((milestone) => (
-            <div key={milestone.hash} className="timeline-panel w-screen h-screen flex items-center px-[10vw] relative">
-              <div>
-                <div className="font-mono text-[11px] text-text-ghost mb-2">[{milestone.hash}]          [{milestone.date}]</div>
+            <div key={milestone.hash} className="timeline-panel w-screen h-screen flex items-center relative">
+              <div className="mx-auto w-full max-w-6xl px-6 md:px-10 -mt-28">
+                <div
+                  className="inline-flex items-center gap-2 rounded-[7px] px-3 py-1 font-mono text-[11px] text-text mb-3"
+                  style={{
+                    border: '1px solid hsl(var(--border) / 0.8)',
+                    background: 'hsl(var(--bg-raised))',
+                  }}
+                >
+                  <span className="text-text-ghost">[{milestone.hash}]</span>
+                  <span className="text-accent">{milestone.date}</span>
+                </div>
                 <h3 className="font-display font-bold text-[56px] text-text leading-[0.95] tracking-[-0.02em] max-w-[700px]">
                   {milestone.title}
                 </h3>
                 <p className="font-body text-[15px] text-text-dim max-w-[420px] mt-[14px] leading-[1.75]">{milestone.desc}</p>
-                <div className="font-mono font-medium text-[10px] tracking-[2px] mt-3" style={{ color: statusColor(milestone.statusColor) }}>
+                <div
+                  className="mt-4 inline-flex rounded-[7px] px-3 py-1 font-mono font-semibold text-[10px] tracking-[2px]"
+                  style={statusTone(milestone.statusColor)}
+                >
                   {milestone.status}
                 </div>
               </div>

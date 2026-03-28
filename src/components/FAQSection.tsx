@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SplitText } from 'gsap/SplitText';
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(ScrollTrigger);
 
 const manContent = `NAME
        hackorbit -- 48-hour national hackathon by MITS Gwalior
@@ -53,10 +52,22 @@ CONTACT
 
 const FAQSection = () => {
   const contentRef = useRef<HTMLDivElement>(null);
+  const wheelTargetRef = useRef(0);
+  const wheelRafRef = useRef<number | null>(null);
+
+  const shellPrompts = [
+    'operator@hackorbit-node MINGW64 /srv/hackorbit/web (main) $',
+    'runner@hackorbit-node:/opt/hackorbit/frontend$'
+  ];
+
+  const formatCommand = (header: string) =>
+    header
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z-]/g, '');
 
   useEffect(() => {
     let cancelled = false;
-    const splitInstances: SplitText[] = [];
 
     const setup = async () => {
       if ('fonts' in document) {
@@ -67,23 +78,20 @@ const FAQSection = () => {
       const ctx = gsap.context(() => {
         if (!contentRef.current) return;
 
-        const split = new SplitText(contentRef.current, { type: 'lines' });
-        splitInstances.push(split);
+        const rows = contentRef.current.querySelectorAll('.man-block');
 
-        gsap.fromTo(split.lines, { opacity: 0, y: 4 }, {
+        gsap.fromTo(rows, { opacity: 0, y: 6 }, {
           opacity: 1, y: 0, stagger: 0.04, duration: 0.3,
           scrollTrigger: { trigger: contentRef.current, start: 'top 78%' },
         });
       });
 
       if (cancelled) {
-        splitInstances.forEach((split) => split.revert());
         ctx.revert();
         return;
       }
 
       return () => {
-        splitInstances.forEach((split) => split.revert());
         ctx.revert();
       };
     };
@@ -99,18 +107,100 @@ const FAQSection = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const content = contentRef.current;
+    if (!content) return;
+
+    wheelTargetRef.current = content.scrollTop;
+
+    const animateToTarget = () => {
+      if (!contentRef.current) {
+        wheelRafRef.current = null;
+        return;
+      }
+
+      const current = contentRef.current.scrollTop;
+      const target = wheelTargetRef.current;
+      const next = current + (target - current) * 0.12;
+
+      if (Math.abs(target - current) < 0.5) {
+        contentRef.current.scrollTop = target;
+        wheelRafRef.current = null;
+        return;
+      }
+
+      contentRef.current.scrollTop = next;
+      wheelRafRef.current = window.requestAnimationFrame(animateToTarget);
+    };
+
+    const onWheel = (event: WheelEvent) => {
+      if (!contentRef.current) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const maxScroll = contentRef.current.scrollHeight - contentRef.current.clientHeight;
+      wheelTargetRef.current = Math.min(
+        Math.max(0, wheelTargetRef.current + event.deltaY * 0.65),
+        maxScroll,
+      );
+
+      if (wheelRafRef.current === null) {
+        wheelRafRef.current = window.requestAnimationFrame(animateToTarget);
+      }
+    };
+
+    content.addEventListener('wheel', onWheel, { passive: false });
+
+    return () => {
+      content.removeEventListener('wheel', onWheel);
+      if (wheelRafRef.current !== null) {
+        window.cancelAnimationFrame(wheelRafRef.current);
+        wheelRafRef.current = null;
+      }
+    };
+  }, []);
+
   const renderContent = () => {
-    return manContent.split('\n').map((line, i) => {
-      const trimmed = line.trimStart();
-      const isHeader = trimmed === line && line.length > 0 && line === line.toUpperCase();
+    const blocks = manContent
+      .trim()
+      .split('\n\n')
+      .map((block) => block.split('\n').filter((line) => line.trim().length > 0));
+
+    return blocks.map((block, index) => {
+      const [header, ...bodyLines] = block;
+      const prompt = shellPrompts[index % shellPrompts.length];
 
       return (
-          <div key={i} className="man-line">
-          {isHeader ? (
-            <span className="font-mono font-semibold text-[11px] sm:text-[13px] text-accent">{line}</span>
-          ) : (
-            <span className="font-mono text-[11px] sm:text-[13px] text-text-dim whitespace-pre-wrap break-words">{line || '\u00A0'}</span>
-          )}
+        <div key={header + index} className="man-block border-b border-border-faint/25 pb-4 last:border-b-0 last:pb-0">
+          <div
+            className="rounded-[6px] px-2.5 py-1.5 font-mono text-[10px] sm:text-[11px] leading-[1.45] whitespace-pre-wrap break-words"
+            style={{
+              background: 'hsl(var(--bg-elevated) / 0.65)',
+              border: '1px solid hsl(var(--border-faint) / 0.16)',
+            }}
+          >
+            <span className="text-text-dim">{prompt} </span>
+            <span className="text-accent">man hackorbit --{formatCommand(header)}</span>
+          </div>
+          <div
+            className="mt-2 border-l border-border-faint/45 pl-3 py-1"
+            style={{ background: 'hsl(var(--bg) / 0.18)' }}
+          >
+            <div className="font-mono font-semibold tracking-[0.08em] text-[10px] sm:text-[11px] text-accent mb-1">
+              {header}
+            </div>
+            <div className="space-y-1">
+              {bodyLines.map((line, lineIndex) => (
+                <div
+                  key={`${header}-${lineIndex}`}
+                  className="font-mono text-[11px] sm:text-[13px] text-text-dim leading-[1.48]"
+                >
+                  {line.trimStart()}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       );
     });
@@ -153,7 +243,11 @@ const FAQSection = () => {
           </div>
 
           {/* Content */}
-          <div ref={contentRef} className="p-4 sm:p-7 md:px-8 leading-[2] overflow-x-auto">
+          <div
+            ref={contentRef}
+            tabIndex={0}
+            className="h-[560px] p-5 sm:p-7 md:px-8 md:py-8 space-y-4 overflow-y-auto overflow-x-auto overscroll-contain"
+          >
             {renderContent()}
           </div>
         </div>

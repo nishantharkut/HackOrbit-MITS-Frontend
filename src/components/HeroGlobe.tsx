@@ -1,174 +1,182 @@
-import { useEffect, useRef, useState } from 'react';
-import createGlobe, { type Arc, type Globe, type Marker } from 'cobe';
+import { useEffect, useRef, useCallback, useState } from 'react';
+import createGlobe from 'cobe';
 
-const HOST_NODE: [number, number] = [26.2183, 78.1828];
-
-const MARKERS: Marker[] = [
-  { id: 'gwalior', location: HOST_NODE, size: 0.14, color: [0.98, 0.72, 0.26] },
-  { location: [28.6139, 77.2090], size: 0.07 },
-  { location: [19.0760, 72.8777], size: 0.07 },
-  { location: [12.9716, 77.5946], size: 0.07 },
-  { location: [17.3850, 78.4867], size: 0.065 },
-  { location: [13.0827, 80.2707], size: 0.06 },
-  { location: [22.5726, 88.3639], size: 0.065 },
-  { location: [18.5204, 73.8567], size: 0.055 },
-  { location: [23.0225, 72.5714], size: 0.055 },
-  { location: [26.9124, 75.7873], size: 0.05 },
-  { location: [23.2599, 77.4126], size: 0.05 },
-  { location: [21.1458, 79.0882], size: 0.05 },
-  { location: [25.5941, 85.1376], size: 0.05 },
-  { location: [26.1445, 91.7362], size: 0.045 },
-  { location: [9.9312, 76.2673], size: 0.045 },
+const MARKERS: { location: [number, number]; size: number }[] = [
+  { location: [40.64, -73.78], size: 0.08 },
+  { location: [51.47, -0.46], size: 0.08 },
+  { location: [25.25, 55.36], size: 0.07 },
+  { location: [35.76, 140.39], size: 0.07 },
+  { location: [1.35, 103.99], size: 0.07 },
+  { location: [33.94, -118.41], size: 0.06 },
+  { location: [48.86, 2.35], size: 0.05 },
+  { location: [50.03, 8.57], size: 0.05 },
+  { location: [37.62, -122.37], size: 0.05 },
+  { location: [41.97, -87.9], size: 0.05 },
+  { location: [-33.94, 151.17], size: 0.05 },
+  { location: [19.08, 72.87], size: 0.05 },
+  { location: [22.31, 113.91], size: 0.05 },
+  { location: [55.97, 37.41], size: 0.04 },
+  { location: [-23.43, -46.47], size: 0.04 },
+  { location: [28.57, 77.10], size: 0.04 },
+  { location: [39.91, 116.39], size: 0.05 },
+  { location: [13.68, 100.75], size: 0.04 },
+  { location: [31.12, 121.80], size: 0.05 },
+  { location: [25.79, -80.29], size: 0.04 },
+  { location: [43.68, -79.63], size: 0.04 },
+  { location: [52.56, 13.29], size: 0.04 },
+  { location: [41.30, 2.08], size: 0.04 },
+  { location: [37.57, 126.98], size: 0.05 },
+  { location: [47.46, -122.31], size: 0.04 },
 ];
 
-const ROUTE_ORIGINS: Array<[number, number]> = [
-  [28.6139, 77.2090],
-  [19.0760, 72.8777],
-  [12.9716, 77.5946],
-  [17.3850, 78.4867],
-  [22.5726, 88.3639],
-  [13.0827, 80.2707],
-  [18.5204, 73.8567],
-  [23.0225, 72.5714],
-  [26.1445, 91.7362],
+const ARCS: { from: [number, number]; to: [number, number] }[] = [
+  { from: [33.94, -118.41], to: [41.97, -87.9] },
+  { from: [50.03, 8.57], to: [40.64, -73.78] },
+  { from: [51.47, -0.46], to: [25.25, 55.36] },
+  { from: [35.76, 140.39], to: [37.62, -122.37] },
+  { from: [1.35, 103.99], to: [51.47, -0.46] },
+  { from: [-33.94, 151.17], to: [33.94, -118.41] },
+  { from: [40.64, -73.78], to: [48.86, 2.35] },
+  { from: [25.25, 55.36], to: [1.35, 103.99] },
+  { from: [19.08, 72.87], to: [51.47, -0.46] },
+  { from: [22.31, 113.91], to: [35.76, 140.39] },
+  { from: [-23.43, -46.47], to: [40.64, -73.78] },
+  { from: [55.97, 37.41], to: [25.25, 55.36] },
 ];
-
-const ARCS: Arc[] = ROUTE_ORIGINS.map((from, index) => ({
-  from,
-  to: HOST_NODE,
-  color: index % 2 === 0 ? [0.75, 0.95, 0.42] : [0.98, 0.72, 0.26],
-}));
-
-const INITIAL_PHI = -1.35;
 
 const HeroGlobe = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const globeRef = useRef<Globe | null>(null);
-  const frameRef = useRef(0);
-  const pointerOriginRef = useRef<number | null>(null);
-  const pointerRotationRef = useRef(0);
-  const phiRef = useRef(INITIAL_PHI);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const pointerInteracting = useRef<number | null>(null);
+  const pointerInteractionMovement = useRef(0);
+  const phiRef = useRef(0);
+  const globeRef = useRef<ReturnType<typeof createGlobe> | null>(null);
+  const rafRef = useRef<number>(0);
   const [ready, setReady] = useState(false);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
+  const initGlobe = useCallback(() => {
+    if (!canvasRef.current || !wrapperRef.current) return;
 
-    let resizeFrame = 0;
+    const size = Math.min(
+      wrapperRef.current.offsetWidth,
+      wrapperRef.current.offsetHeight,
+      600
+    );
+    if (size === 0) return;
 
-    const destroyGlobe = () => {
-      window.cancelAnimationFrame(frameRef.current);
-      if (globeRef.current) {
-        globeRef.current.destroy();
-        globeRef.current = null;
-      }
-    };
+    if (globeRef.current) {
+      globeRef.current.destroy();
+      cancelAnimationFrame(rafRef.current);
+    }
 
-    const mountGlobe = () => {
-      const size = Math.min(container.offsetWidth, container.offsetHeight || container.offsetWidth, 560);
-      if (!size) return;
+    const pixelRatio = window.devicePixelRatio || 1;
+    canvasRef.current.width = size * pixelRatio;
+    canvasRef.current.height = size * pixelRatio;
+    canvasRef.current.style.width = `${size}px`;
+    canvasRef.current.style.height = `${size}px`;
+    canvasRef.current.style.display = 'block';
+    canvasRef.current.style.margin = '0 auto';
 
-      setReady(false);
-      destroyGlobe();
-
-      const devicePixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-
-      canvas.width = size * devicePixelRatio;
-      canvas.height = size * devicePixelRatio;
-      canvas.style.width = `${size}px`;
-      canvas.style.height = `${size}px`;
-      canvas.style.display = 'block';
-
-      globeRef.current = createGlobe(canvas, {
-        devicePixelRatio,
-        width: size * devicePixelRatio,
-        height: size * devicePixelRatio,
-        phi: phiRef.current,
-        theta: 0.34,
-        dark: 1,
-        diffuse: 1.15,
-        scale: 1.02,
-        mapSamples: 16000,
-        mapBrightness: 2.2,
-        mapBaseBrightness: 0.03,
-        baseColor: [0.08, 0.11, 0.14],
-        markerColor: [0.75, 0.95, 0.42],
-        glowColor: [0.18, 0.23, 0.18],
-        offset: [0, -0.02],
-        opacity: 0.96,
-        markers: MARKERS,
-        arcs: ARCS,
-        arcColor: [0.98, 0.72, 0.26],
-        arcWidth: 0.55,
-        arcHeight: 0.24,
-        markerElevation: 0.05,
-      });
-
-      const animate = () => {
-        if (pointerOriginRef.current === null) {
-          phiRef.current += 0.0022;
-        }
-
-        globeRef.current?.update({
-          phi: phiRef.current + pointerRotationRef.current,
-        });
-
-        frameRef.current = window.requestAnimationFrame(animate);
-      };
-
-      frameRef.current = window.requestAnimationFrame(animate);
-      setReady(true);
-    };
-
-    mountGlobe();
-
-    const resizeObserver = new ResizeObserver(() => {
-      window.cancelAnimationFrame(resizeFrame);
-      resizeFrame = window.requestAnimationFrame(mountGlobe);
+    const globe = createGlobe(canvasRef.current, {
+      devicePixelRatio: pixelRatio,
+      width: size * pixelRatio,
+      height: size * pixelRatio,
+      phi: 0.3,
+      theta: 0.15,
+      dark: 1,
+      diffuse: 1.2,
+      mapSamples: 40000,
+      mapBrightness: 4.2,
+      mapBaseBrightness: 0.05,
+      baseColor: [0.1, 0.13, 0.17],
+      markerColor: [0.976, 0.451, 0.086],
+      glowColor: [0.2, 0.24, 0.2],
+      markers: MARKERS,
+      arcs: ARCS,
+      arcColor: [0.976, 0.451, 0.086],
+      arcWidth: 0.4,
+      arcHeight: 0.3,
+      opacity: 1,
     });
 
-    resizeObserver.observe(container);
+    globeRef.current = globe;
 
-    return () => {
-      window.cancelAnimationFrame(resizeFrame);
-      resizeObserver.disconnect();
-      destroyGlobe();
+    const animate = () => {
+      if (!pointerInteracting.current) {
+        phiRef.current += 0.003;
+      }
+      globe.update({
+        phi: phiRef.current + pointerInteractionMovement.current,
+        width: size * pixelRatio,
+        height: size * pixelRatio,
+      });
+      rafRef.current = requestAnimationFrame(animate);
     };
+    rafRef.current = requestAnimationFrame(animate);
+
+    setReady(true);
   }, []);
 
+  useEffect(() => {
+    const timer = setTimeout(initGlobe, 100);
+
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(initGlobe, 200);
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(resizeTimer);
+      cancelAnimationFrame(rafRef.current);
+      window.removeEventListener('resize', handleResize);
+      if (globeRef.current) globeRef.current.destroy();
+    };
+  }, [initGlobe]);
+
   return (
-    <div ref={containerRef} className="flex h-full w-full items-center justify-center">
-      <canvas
-        ref={canvasRef}
-        aria-label="HackOrbit participation globe"
-        className={`transition-opacity duration-700 ${ready ? 'opacity-100' : 'opacity-0'}`}
-        onPointerDown={(event) => {
-          pointerOriginRef.current = event.clientX;
-          event.currentTarget.setPointerCapture(event.pointerId);
-        }}
-        onPointerMove={(event) => {
-          if (pointerOriginRef.current === null) return;
-          pointerRotationRef.current = (event.clientX - pointerOriginRef.current) / 160;
-        }}
-        onPointerUp={(event) => {
-          if (pointerOriginRef.current !== null) {
-            phiRef.current += pointerRotationRef.current;
-            pointerRotationRef.current = 0;
-          }
-          pointerOriginRef.current = null;
-          event.currentTarget.releasePointerCapture(event.pointerId);
-        }}
-        onPointerCancel={(event) => {
-          if (pointerOriginRef.current !== null) {
-            phiRef.current += pointerRotationRef.current;
-            pointerRotationRef.current = 0;
-          }
-          pointerOriginRef.current = null;
-          event.currentTarget.releasePointerCapture(event.pointerId);
-        }}
-      />
+    <div ref={wrapperRef} style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div ref={containerRef}>
+        <canvas
+          ref={canvasRef}
+          onPointerDown={(e) => {
+            pointerInteracting.current = e.clientX;
+            if (canvasRef.current) canvasRef.current.style.cursor = 'grabbing';
+          }}
+          onPointerUp={() => {
+            if (pointerInteracting.current !== null) {
+              phiRef.current += pointerInteractionMovement.current;
+              pointerInteractionMovement.current = 0;
+            }
+            pointerInteracting.current = null;
+            if (canvasRef.current) canvasRef.current.style.cursor = 'grab';
+          }}
+          onPointerOut={() => {
+            if (pointerInteracting.current !== null) {
+              phiRef.current += pointerInteractionMovement.current;
+              pointerInteractionMovement.current = 0;
+            }
+            pointerInteracting.current = null;
+            if (canvasRef.current) canvasRef.current.style.cursor = 'grab';
+          }}
+          onMouseMove={(e) => {
+            if (pointerInteracting.current !== null) {
+              const delta = e.clientX - pointerInteracting.current;
+              pointerInteractionMovement.current = delta / 200;
+            }
+          }}
+          onTouchMove={(e) => {
+            if (pointerInteracting.current !== null && e.touches[0]) {
+              const delta = e.touches[0].clientX - pointerInteracting.current;
+              pointerInteractionMovement.current = delta / 200;
+            }
+          }}
+          className={`cursor-grab transition-opacity duration-700 ${ready ? 'opacity-100' : 'opacity-0'}`}
+        />
+      </div>
     </div>
   );
 };
