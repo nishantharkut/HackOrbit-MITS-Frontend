@@ -452,10 +452,10 @@ const HeroSection = ({ show }: { show: boolean }) => {
                     }}
                   >
                     <span className="block font-mono text-[9px] uppercase tracking-[0.22em] text-text-ghost">
-                      tracks live
+                      event date
                     </span>
                     <span className="mt-2 block font-mono text-[18px] font-semibold text-accent">
-                      06 / 06
+                      15 / 06 / 26
                     </span>
                   </div>
                 </div>

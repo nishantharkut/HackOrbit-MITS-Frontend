@@ -23,17 +23,18 @@ const MarqueeStrip = () => {
     <div
       className="overflow-hidden"
       style={{
-        height: 34,
-        background: 'hsl(var(--bg-raised))',
-        borderTop: '1px solid hsl(var(--border-faint) / 0.03)',
-        borderBottom: '1px solid hsl(var(--border-faint) / 0.03)',
+        height: 40,
+        background: '#f5f1ed',
+        borderTop: '2px dashed #b8a89f',
+        borderBottom: '2px dashed #b8a89f',
+        boxShadow: 'inset 0 1px 0 rgba(0,0,0,0.05)',
       }}
     >
       <div ref={trackRef} className="flex items-center h-full whitespace-nowrap w-fit">
-        <span className="font-mono text-[10px] uppercase tracking-[2px] text-text-ghost">
+        <span className="font-mono text-[11px] font-bold uppercase tracking-[2px]" style={{ color: '#1a3a3a', letterSpacing: '2px' }}>
           {content}
         </span>
-        <span className="font-mono text-[10px] uppercase tracking-[2px] text-text-ghost">
+        <span className="font-mono text-[11px] font-bold uppercase tracking-[2px]" style={{ color: '#1a3a3a', letterSpacing: '2px' }}>
           {content}
         </span>
       </div>
