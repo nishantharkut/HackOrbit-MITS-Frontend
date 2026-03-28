@@ -55,23 +55,47 @@ const FAQSection = () => {
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let cancelled = false;
     const splitInstances: SplitText[] = [];
 
-    const ctx = gsap.context(() => {
-      if (!contentRef.current) return;
+    const setup = async () => {
+      if ('fonts' in document) {
+        await (document as Document & { fonts: FontFaceSet }).fonts.ready;
+      }
+      if (cancelled) return;
 
-      const split = new SplitText(contentRef.current, { type: 'lines' });
-      splitInstances.push(split);
+      const ctx = gsap.context(() => {
+        if (!contentRef.current) return;
 
-      gsap.fromTo(split.lines, { opacity: 0, y: 4 }, {
-        opacity: 1, y: 0, stagger: 0.04, duration: 0.3,
-        scrollTrigger: { trigger: contentRef.current, start: 'top 78%' },
+        const split = new SplitText(contentRef.current, { type: 'lines' });
+        splitInstances.push(split);
+
+        gsap.fromTo(split.lines, { opacity: 0, y: 4 }, {
+          opacity: 1, y: 0, stagger: 0.04, duration: 0.3,
+          scrollTrigger: { trigger: contentRef.current, start: 'top 78%' },
+        });
       });
+
+      if (cancelled) {
+        splitInstances.forEach((split) => split.revert());
+        ctx.revert();
+        return;
+      }
+
+      return () => {
+        splitInstances.forEach((split) => split.revert());
+        ctx.revert();
+      };
+    };
+
+    let dispose: (() => void) | void;
+    void setup().then((cleanup) => {
+      dispose = cleanup;
     });
 
     return () => {
-      splitInstances.forEach((split) => split.revert());
-      ctx.revert();
+      cancelled = true;
+      if (dispose) dispose();
     };
   }, []);
 
@@ -93,7 +117,7 @@ const FAQSection = () => {
   };
 
   return (
-    <section className="py-16 md:py-24">
+    <section id="faq" className="py-16 md:py-24">
       <div className="max-w-6xl mx-auto px-6 md:px-10">
         <span className="font-mono font-medium text-[10px] text-accent tracking-[3px] uppercase block mb-3">
           $ man hackorbit

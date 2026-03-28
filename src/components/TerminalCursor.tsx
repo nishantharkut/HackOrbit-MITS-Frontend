@@ -6,6 +6,17 @@ const TerminalCursor = () => {
     const cursor = document.getElementById('cursor-block');
     if (!cursor) return;
 
+    const rootStyles = getComputedStyle(document.documentElement);
+    const resolveThemeColor = (token: '--accent' | '--keyword') => {
+      const value = rootStyles.getPropertyValue(token).trim();
+      return value ? `hsl(${value})` : 'hsl(0 0% 100%)';
+    };
+
+    const accentColor = resolveThemeColor('--accent');
+    const keywordColor = resolveThemeColor('--keyword');
+    cursor.style.backgroundColor = accentColor;
+    cursor.style.transition = 'background-color 120ms linear';
+
     const xTo = gsap.quickTo(cursor, 'x', { duration: 0.05 });
     const yTo = gsap.quickTo(cursor, 'y', { duration: 0.05 });
 
@@ -47,10 +58,10 @@ const TerminalCursor = () => {
       gsap.to(cursor, { height: 18, width: 10, duration: 0.12 });
     };
     const onNumberEnter = () => {
-      gsap.to(cursor, { backgroundColor: 'hsl(var(--keyword))', duration: 0.12 });
+      cursor.style.backgroundColor = keywordColor;
     };
     const onNumberLeave = () => {
-      gsap.to(cursor, { backgroundColor: 'hsl(var(--accent))', duration: 0.12 });
+      cursor.style.backgroundColor = accentColor;
     };
 
     actionEls.forEach(el => {

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import './TimelineSection.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -60,6 +61,10 @@ const TimelineSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
+  const mobileSectionRef = useRef<HTMLElement>(null);
+  const mobileTimelineRef = useRef<HTMLDivElement>(null);
+  const mobileDotRef = useRef<HTMLDivElement>(null);
+  const mobileBoxesRef = useRef<Array<HTMLDivElement | null>>([]);
   const [current, setCurrent] = useState(0);
   const [isDesktop, setIsDesktop] = useState(false);
 
@@ -129,6 +134,55 @@ const TimelineSection = () => {
     return () => ctx.revert();
   }, [isDesktop]);
 
+  useEffect(() => {
+    if (isDesktop || !mobileSectionRef.current || !mobileTimelineRef.current) return;
+
+    const timer = window.setTimeout(() => {
+      const ctx = gsap.context(() => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: mobileSectionRef.current,
+            start: 'top 30%',
+            end: 'bottom center',
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        tl.fromTo(
+          mobileTimelineRef.current,
+          { maxHeight: '0%', opacity: 0 },
+          { maxHeight: '100%', opacity: 1, duration: 0.5 },
+          0,
+        );
+
+        mobileBoxesRef.current.forEach((box, idx) => {
+          if (!box) return;
+
+          tl.fromTo(
+            box,
+            { opacity: 0 },
+            { opacity: 1, duration: 0.15 },
+            idx * 0.1,
+          );
+        });
+
+        if (mobileDotRef.current) {
+          tl.fromTo(
+            mobileDotRef.current,
+            { animationIterationCount: 'infinite' },
+            { animationIterationCount: '1', duration: 0.1 },
+            0.3,
+          );
+        }
+      }, mobileSectionRef);
+
+      return () => ctx.revert();
+    }, 120);
+
+    return () => window.clearTimeout(timer);
+  }, [isDesktop]);
+
   const statusColor = (kind: Milestone['statusColor']) => {
     if (kind === 'accent') return 'hsl(var(--accent))';
     if (kind === 'warning') return 'hsl(var(--warning))';
@@ -137,26 +191,45 @@ const TimelineSection = () => {
 
   if (!isDesktop) {
     return (
-      <section ref={sectionRef} className="py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-6 md:px-10">
+      <section ref={mobileSectionRef} id="timeline" className="timeline-mobile-section">
+        <div className="timeline-mobile-container max-w-6xl mx-auto">
           <span className="font-mono font-medium text-[10px] text-accent tracking-[3px] uppercase block mb-3">
             $ git log --oneline
           </span>
-          <h2 className="font-display font-bold text-[26px] md:text-[40px] text-text leading-none mb-16">
+          <h2 className="timeline-mobile-title font-display font-bold text-text leading-none">
             From brief to build.
           </h2>
 
-          <div className="relative pl-8" style={{ borderLeft: '2px solid hsl(var(--accent) / 0.25)' }}>
-            {milestones.map((milestone) => (
-              <div key={milestone.hash} className="relative pb-12 last:pb-0">
-                <div className="font-mono text-[11px] text-text-ghost mb-2">[{milestone.hash}]          [{milestone.date}]</div>
-                <h3 className="font-display font-bold text-[32px] text-text leading-[0.95] tracking-[-0.02em]">{milestone.title}</h3>
-                <p className="font-body text-[15px] text-text-dim max-w-[420px] mt-3 leading-[1.75]">{milestone.desc}</p>
-                <div className="font-mono font-medium text-[10px] tracking-[2px] mt-3" style={{ color: statusColor(milestone.statusColor) }}>
-                  {milestone.status}
+          <div className="timeline-mobile-info relative">
+            <div
+              ref={mobileTimelineRef}
+              className="timeline-mobile-line absolute top-0 pointer-events-none"
+              style={{
+                backgroundImage: 'linear-gradient(to top, hsl(var(--accent)) 20%, hsl(var(--accent) / 0.7) 55%, transparent 95%)',
+                maxHeight: '0%',
+              }}
+            >
+              <div ref={mobileDotRef} className="timeline-mobile-dot" />
+            </div>
+
+            <div className="timeline-mobile-list">
+              {milestones.map((milestone, idx) => (
+                <div
+                  key={milestone.hash}
+                  ref={(el) => {
+                    mobileBoxesRef.current[idx] = el;
+                  }}
+                  className="timeline-mobile-item"
+                >
+                  <div className="font-mono text-[11px] text-text-ghost mb-2">[{milestone.hash}]          [{milestone.date}]</div>
+                  <h3 className="timeline-mobile-item-title font-display font-bold text-text leading-[0.95] tracking-[-0.02em]">{milestone.title}</h3>
+                  <p className="timeline-mobile-item-desc font-body text-text-dim leading-[1.75]">{milestone.desc}</p>
+                  <div className="font-mono font-medium text-[10px] tracking-[2px] mt-3" style={{ color: statusColor(milestone.statusColor) }}>
+                    {milestone.status}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -164,7 +237,7 @@ const TimelineSection = () => {
   }
 
   return (
-    <section ref={sectionRef} className="timeline-section relative">
+    <section ref={sectionRef} id="timeline" className="timeline-section relative">
       <div className="max-w-6xl mx-auto px-6 md:px-10 pt-24">
         <span className="font-mono font-medium text-[10px] text-accent tracking-[3px] uppercase block mb-3">
           $ git log --oneline

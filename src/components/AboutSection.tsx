@@ -34,7 +34,7 @@ const AboutSection = () => {
   }, []);
 
   return (
-    <section className="py-16 md:py-24">
+    <section id="about" className="py-16 md:py-24">
       <div className="max-w-6xl mx-auto px-6 md:px-10 grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-12 md:gap-[72px]">
         {/* Left */}
         <div ref={leftRef}>

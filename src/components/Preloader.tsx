@@ -24,52 +24,76 @@ const Preloader = ({ onComplete }: PreloaderProps) => {
   onCompleteRef.current = onComplete;
 
   useEffect(() => {
+    let cancelled = false;
     const splitInstances: SplitText[] = [];
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        onComplete: () => {
-          gsap.to(wrapperRef.current, {
-            clipPath: 'inset(0 0 100% 0)',
-            duration: 0.55,
-            ease: 'power2.in',
-            delay: 0.4,
-            onComplete: () => onCompleteRef.current(),
-          });
-        },
-      });
+    const setup = async () => {
+      if ('fonts' in document) {
+        await (document as Document & { fonts: FontFaceSet }).fonts.ready;
+      }
+      if (cancelled) return;
 
-      lines.forEach((line, idx) => {
-        const lineEl = lineRefs.current[idx];
-        if (!lineEl) return;
-
-        const split = new SplitText(lineEl, { type: 'chars' });
-        splitInstances.push(split);
-
-        tl.from(split.chars, {
-          opacity: 0,
-          duration: 0.01,
-          stagger: 0.022,
-          ease: 'none',
+      const ctx = gsap.context(() => {
+        const tl = gsap.timeline({
+          onComplete: () => {
+            gsap.to(wrapperRef.current, {
+              clipPath: 'inset(0 0 100% 0)',
+              duration: 0.55,
+              ease: 'power2.in',
+              delay: 0.4,
+              onComplete: () => onCompleteRef.current(),
+            });
+          },
         });
 
-        if (line.tag) {
-          tl.to(tagRefs.current[idx], {
-            opacity: 1,
-            duration: 0.1,
-          }, '>-0.05');
+        lines.forEach((line, idx) => {
+          const lineEl = lineRefs.current[idx];
+          if (!lineEl) return;
+
+          const split = new SplitText(lineEl, { type: 'chars' });
+          splitInstances.push(split);
+
+          tl.from(split.chars, {
+            opacity: 0,
+            duration: 0.01,
+            stagger: 0.022,
+            ease: 'none',
+          });
+
+          if (line.tag) {
+            tl.to(tagRefs.current[idx], {
+              opacity: 1,
+              duration: 0.1,
+            }, '>-0.05');
+          }
+        });
+
+        const liveDot = document.getElementById('preloader-live-dot');
+        if (liveDot) {
+          gsap.to(liveDot, { opacity: 0.3, repeat: -1, yoyo: true, duration: 0.6 });
         }
       });
 
-      const liveDot = document.getElementById('preloader-live-dot');
-      if (liveDot) {
-        gsap.to(liveDot, { opacity: 0.3, repeat: -1, yoyo: true, duration: 0.6 });
+      if (cancelled) {
+        splitInstances.forEach((split) => split.revert());
+        ctx.revert();
+        return;
       }
+
+      return () => {
+        splitInstances.forEach((split) => split.revert());
+        ctx.revert();
+      };
+    };
+
+    let dispose: (() => void) | void;
+    void setup().then((cleanup) => {
+      dispose = cleanup;
     });
 
     return () => {
-      splitInstances.forEach((split) => split.revert());
-      ctx.revert();
+      cancelled = true;
+      if (dispose) dispose();
     };
   }, []);
 

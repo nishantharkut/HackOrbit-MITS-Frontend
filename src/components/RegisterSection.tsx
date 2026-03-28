@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { animate, createSpring } from 'animejs';
+import { animate, spring } from 'animejs';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -37,13 +37,13 @@ const RegisterSection = () => {
     const submitBtn = submitRef.current;
     if (!submitBtn) return;
 
-    const spring = createSpring({ stiffness: 280, damping: 16 });
+    const springEase = spring({ stiffness: 280, damping: 16 });
 
     const handleEnter = () => {
       animate(submitBtn, {
         translateY: -3,
         scale: 1.02,
-        duration: spring,
+        ease: springEase,
       });
     };
 
@@ -51,7 +51,7 @@ const RegisterSection = () => {
       animate(submitBtn, {
         translateY: 0,
         scale: 1,
-        duration: spring,
+        ease: springEase,
       });
     };
 

@@ -1,0 +1,141 @@
+.timeline-mobile-section {
+  position: relative;
+  padding: 64px 0;
+}
+
+.timeline-mobile-container {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.timeline-mobile-title {
+  font-size: 26px;
+  margin-bottom: 64px;
+}
+
+.timeline-mobile-info {
+  position: relative;
+}
+
+.timeline-mobile-line {
+  left: 0;
+  width: 2px;
+  height: 100%;
+  opacity: 0;
+}
+
+.timeline-mobile-dot {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: hsl(var(--accent));
+  box-shadow:
+    0 0 5px 2px hsl(var(--accent) / 0.45),
+    0 0 20px 10px hsl(var(--accent) / 0.16);
+  animation: timeline-mobile-pulse 0.8s linear infinite;
+}
+
+.timeline-mobile-list {
+  padding-left: 32px;
+}
+
+.timeline-mobile-item {
+  position: relative;
+  padding-bottom: 48px;
+}
+
+.timeline-mobile-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-mobile-item-title {
+  font-size: 32px;
+  max-width: 22ch;
+}
+
+.timeline-mobile-item-desc {
+  font-size: 15px;
+  max-width: 420px;
+  margin-top: 12px;
+}
+
+@keyframes timeline-mobile-pulse {
+  10%,
+  20%,
+  50%,
+  70%,
+  90% {
+    box-shadow: 0 0 5px 2px hsl(var(--accent) / 0.45);
+  }
+
+  0%,
+  30%,
+  64%,
+  80%,
+  100% {
+    box-shadow:
+      0 0 5px 2px hsl(var(--accent) / 0.45),
+      0 0 18px 8px hsl(var(--accent) / 0.18),
+      0 0 70px 12px hsl(var(--accent) / 0.3);
+  }
+}
+
+@media (min-width: 640px) {
+  .timeline-mobile-section {
+    padding: 80px 0;
+  }
+
+  .timeline-mobile-container {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  .timeline-mobile-title {
+    font-size: 40px;
+    margin-bottom: 72px;
+  }
+
+  .timeline-mobile-list {
+    padding-left: 40px;
+  }
+
+  .timeline-mobile-item {
+    padding-bottom: 56px;
+  }
+
+  .timeline-mobile-item-title {
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 600px) {
+  .timeline-mobile-container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .timeline-mobile-title {
+    margin-bottom: 56px;
+  }
+
+  .timeline-mobile-list {
+    padding-left: 20px;
+  }
+
+  .timeline-mobile-item {
+    padding-bottom: 44px;
+  }
+
+  .timeline-mobile-item-title {
+    font-size: 28px;
+  }
+
+  .timeline-mobile-item-desc {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+}

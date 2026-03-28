@@ -59,6 +59,7 @@ const PrizesSection = () => {
   return (
     <section
       ref={sectionRef}
+      id="prizes"
       className="py-16 md:py-24"
       style={{
         background: 'hsl(var(--bg-raised))',
